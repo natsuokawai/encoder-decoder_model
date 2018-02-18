@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from keras.preprocessing.sequence import pad_sequences
 import numpy as np
 
-from encdec import EncDec
+from models import encdec
 
 def load_data(file_path):
     tokenizer = Tokenizer(filters="")
@@ -38,7 +38,7 @@ if __name__ = '__main__':
     train_X, tokenizer_en = load_data('/root/userspace/public/lesson4/train.en')
     train_Y, tokenizer_ja = load_data('/root/userspace/public/lesson4/train.en')
 
-    model = EncDec(train_X, train_Y, tokenizer_en, tokenizer_ja)
+    model = encdec.EncDec(train_X, train_Y, tokenizer_en, tokenizer_ja)
 
     train_target = np.hstack((train_Y[:, 1:], np.zeros((len(train_Y),1), dtype=np.int32)))
     model.fit([train_X, train_Y], np.expand_dims(train_target, -1), batch_size=128, epochs=15, verbose=1, validation_split=0.2)
