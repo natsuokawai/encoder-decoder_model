@@ -18,14 +18,14 @@ def Attention(train_X, train_Y, tokenizer_en, tokenizer_ja):
     encoder
     """
     encoder_inputs = Input(shape=(seqX_len,))
-    encoder_embebdded = Embedding(en_vocab_size, emb_dim, mask_zero=True)
-    encoded_seq, *endoer_states = LSTM(hid_dim, return_sequences=True, return_state=True)
+    encoder_embedded = Embedding(en_vocab_size, emb_dim, mask_zero=True)(encoder_inputs)
+    encoded_seq, *encoder_states = LSTM(hid_dim, return_sequences=True, return_state=True)(encoder_embedded)
 
     """
     decoder
     """
     decoder_inputs = Input(shape=(seqY_len,))
-    decoder_embedding = Embedding(ja_vocab, embb_dim)
+    decoder_embedding = Embedding(ja_vocab_size, emb_dim)
     decoder_embedded = decoder_embedding(decoder_inputs)
     decoder_lstm = LSTM(hid_dim, return_sequences=True, return_state=True)
     decoded_seq, _, _ = decoder_lstm(decoder_embedded, initial_state=encoder_states)
@@ -38,7 +38,8 @@ def Attention(train_X, train_Y, tokenizer_en, tokenizer_ja):
     score = dot([score, encoded_seq], axes=(2,2))
     attention = Activation('softmax')(score)
     context = dot([attention, encoded_seq], axes=(2,1))
-    concat = concatenate([context, decoded_seq], axes=2)
+    concat = concatenate([context, decoded_seq], axis=2)
+    attention_dense = Dense(att_dim, activation='tanh')
     attentional = attention_dense(concat)
     output_dense = Dense(ja_vocab_size, activation='softmax')
     outputs = output_dense(attentional)
